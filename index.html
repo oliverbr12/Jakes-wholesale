@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Oliver Meats Wholesale</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      line-height: 1.6;
+      margin: 0;
+      padding: 0;
+      background: #f5f5f5;
+    }
+    header, footer {
+      background: #2c3e50;
+      color: white;
+      text-align: center;
+      padding: 1em;
+    }
+    main {
+      max-width: 700px;
+      margin: 2em auto;
+      background: white;
+      padding: 2em;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    h1, h2 {
+      color: #2c3e50;
+    }
+    label {
+      display: block;
+      margin-top: 1em;
+    }
+    input, textarea, select {
+      width: 100%;
+      padding: 0.5em;
+      margin-top: 0.3em;
+    }
+    .product-entry {
+      margin: 0.5em 0;
+    }
+    button {
+      margin-top: 1em;
+      background: #27ae60;
+      color: white;
+      border: none;
+      padding: 0.75em 1.5em;
+      cursor: pointer;
+      font-size: 1em;
+    }
+    button:hover {
+      background: #219150;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>Jake's Meats Wholesale</h1>
+  <p>Farm-fresh, quality meats — weekly specials</p>
+</header>
+
+<main>
+  <h2>Weekly Offerings</h2>
+  <div id="product-list">Loading product list...</div>
+
+  <h2>Place Your Order</h2>
+  <form id="order-form" action="https://formspree.io/f/xjkognna" method="POST">
+    <label for="name">Name</label>
+    <input type="text" name="name" required>
+
+    <label for="business">Business Name</label>
+    <input type="text" name="business">
+
+    <label for="email">Email</label>
+    <input type="email" name="email" required>
+
+    <label for="phone">Phone</label>
+    <input type="tel" name="phone">
+
+    <div id="order-fields">
+      <!-- Product checkboxes and quantity fields will be inserted here -->
+    </div>
+
+    <label for="notes">Additional Notes</label>
+    <textarea name="notes" rows="4"></textarea>
+
+    <button type="submit">Submit Order</button>
+  </form>
+</main>
+
+<footer>
+  <p>Contact us: your@email.com | (555) 555-5555</p>
+</footer>
+
+<script>
+// Replace with your published Google Sheet CSV URL
+const SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSn7MnQOLcBQE7F7HUD2fdaPbGXBCB6WEb_bGvL34jRhZ__brtDP3eogFFdMghi5jF4y9rELVlHx--2/pubhtml;
+
+fetch(SHEET_URL)
+  .then(res => res.text())
+  .then(text => {
+    const rows = text.trim().split('\n').slice(1); // Skip header row
+    const productList = document.getElementById('product-list');
+    const orderFields = document.getElementById('order-fields');
+    productList.innerHTML = '';
+    rows.forEach(row => {
+      const [product, price] = row.split(',');
+      const id = product.toLowerCase().replace(/\s+/g, '-');
+      const productHtml = `
+        <div class="product-entry">
+          <label>
+            <input type="checkbox" name="product-${product}" value="Yes"> ${product} - $${price}/lb
+          </label>
+          <input type="number" name="quantity-${product}" placeholder="lbs" min="0">
+        </div>
+      `;
+      productList.innerHTML += `<p>${product} - $${price}/lb</p>`;
+      orderFields.innerHTML += productHtml;
+    });
+  })
+  .catch(err => {
+    document.getElementById('product-list').textContent = 'Unable to load products. Please try again later.';
+  });
+</script>
+
+</body>
+</html>
